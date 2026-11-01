@@ -34,6 +34,12 @@ public static partial class YoutubeUtils
     [GeneratedRegex("^[0-9A-Za-z_-]{11}$")]
     private static partial Regex VideoIdRegex();
 
+    [GeneratedRegex("\"INNERTUBE_API_KEY\"\\s*:\\s*\"(?<value>[^\"]+)\"")]
+    private static partial Regex InnertubeApiKeyRegex();
+
+    [GeneratedRegex("\"INNERTUBE_CLIENT_VERSION\"\\s*:\\s*\"(?<value>[^\"]+)\"")]
+    private static partial Regex InnertubeClientVersionRegex();
+
     /// <summary>
     /// Resolves a user-supplied reference to a canonical YouTube channel id.
     /// Accepts: a raw channel id ("UC..."), a /channel/UC... URL, or a handle / custom / user
@@ -206,19 +212,8 @@ public static partial class YoutubeUtils
                 return null;
             string homeHtml = await homeResp.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
 
-            static string? ExtractValue(string hay, string marker)
-            {
-                int idx = hay.IndexOf(marker, StringComparison.Ordinal);
-                if (idx < 0) return null;
-                int start = idx + marker.Length;
-                if (start >= hay.Length) return null;
-                int end = hay.IndexOf('"', start);
-                if (end < 0) return null;
-                return hay[start..end];
-            }
-
-            string? apiKey = ExtractValue(homeHtml, "\"INNERTUBE_API_KEY\":\"");
-            string? clientVersion = ExtractValue(homeHtml, "\"INNERTUBE_CLIENT_VERSION\":\"");
+            string apiKey = InnertubeApiKeyRegex().Match(homeHtml).Groups["value"].Value;
+            string clientVersion = InnertubeClientVersionRegex().Match(homeHtml).Groups["value"].Value;
             if (string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(clientVersion))
                 return null;
 

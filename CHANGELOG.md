@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Read YouTube avatar homepage metadata when JSON fields have whitespace around colons.
 - Ignore invisible Unicode format characters when normalizing messages for XP similarity checks.
 - Skip malformed or non-web xkcd feed links instead of posting them as comic announcements.
 - Ignore malformed, relative, and non-HTTPS YouTube avatar thumbnails so a usable image can still be selected.

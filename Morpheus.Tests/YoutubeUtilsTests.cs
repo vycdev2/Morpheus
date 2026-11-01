@@ -65,6 +65,30 @@ public class YoutubeUtilsTests
         Assert.Equal(2, handler.RequestedUris.Count);
     }
 
+    [Fact]
+    public async Task GetChannelAvatarAsync_AcceptsWhitespaceAroundHomepageMetadataColons()
+    {
+        RecordingHandler handler = new(request => request.Method == HttpMethod.Get
+            ? new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("\"INNERTUBE_API_KEY\" : \"test\", \"INNERTUBE_CLIENT_VERSION\"\n: \"1.0\"")
+            }
+            : new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("""
+                    {"header":{"c4TabbedHeaderRenderer":{"avatar":{"thumbnails":[
+                        {"url":"https://example.com/avatar.jpg","width":128}
+                    ]}}}}
+                    """)
+            });
+        using HttpClient httpClient = new(handler);
+
+        string? avatar = await YoutubeUtils.GetChannelAvatarAsync(httpClient, ChannelId);
+
+        Assert.Equal("https://example.com/avatar.jpg", avatar);
+        Assert.Equal(2, handler.RequestedUris.Count);
+    }
+
     [Theory]
     [InlineData("javascript:alert(1)")]
     [InlineData("/relative.jpg")]
