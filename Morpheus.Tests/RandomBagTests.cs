@@ -5,6 +5,21 @@ namespace Morpheus.Tests;
 public class RandomBagTests
 {
     [Fact]
+    public void Random_KeepsOriginalItemsAfterCallerChangesInputList()
+    {
+        List<string> initialItems = ["alpha", "beta"];
+        var bag = new RandomBag(initialItems);
+        initialItems.Clear();
+        initialItems.Add("gamma");
+
+        for (int cycle = 0; cycle < 2; cycle++)
+        {
+            string[] drawn = [bag.Random(), bag.Random()];
+            Assert.Equal(["alpha", "beta"], drawn.Order());
+        }
+    }
+
+    [Fact]
     public void Random_DoesNotRepeatAnItemWithinEachBagCycle()
     {
         string[] items = ["alpha", "beta", "gamma", "delta"];
